@@ -2,7 +2,6 @@
 import tweepy
 import auth
 
-ID = "1232716565222764544"
 api = tweepy.API(auth.twitter)
 
 class CustomStreamListener(tweepy.StreamListener):
@@ -62,18 +61,3 @@ class CustomStreamListener(tweepy.StreamListener):
         """
         for func in self.status_functions:
             func(status)
-
-def print_tweet(tweet):
-    print(tweet.text)
-
-def main():
-    sl = CustomStreamListener([ID], [print_tweet])
-
-    sl.run()
-
-    help(tweepy.StreamListener)
-
-if __name__ == "__main__":
-    main()
-
-
