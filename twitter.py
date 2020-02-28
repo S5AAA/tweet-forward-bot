@@ -59,5 +59,9 @@ class CustomStreamListener(tweepy.StreamListener):
         """
         Called every time a tweet is received from the stream
         """
-        for func in self.status_functions:
-            func(status)
+        print(f"new tweet from {status.user.id_str}")
+
+        if status.user.id_str in self.follow_ids:
+            if status.in_reply_to_user_id_str is None or status.in_reply_to_user_id_str in self.follow_ids:
+                for func in self.status_functions:
+                    func(status)
