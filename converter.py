@@ -16,7 +16,13 @@ def twitter_to_telegram(status):
     Parameters:
         status: The twitter status
     """
-    text = status.text
+
+    text = ""
+
+    try:
+        text = status.extended_tweet['full_text']
+    except AttributeError:
+        text = status.text
 
     print(f"TWITTER: {text} -> ", end="")
     

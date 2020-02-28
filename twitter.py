@@ -1,6 +1,6 @@
 #! python3
 
-from OpenSSL.SSL import WantReadError
+import OpenSSL
 import tweepy
 import auth
 
@@ -27,7 +27,7 @@ class CustomStreamListener(tweepy.StreamListener):
             follow_ids: A list of IDS to filter by.
             funcs:      A list of functions to run on every tweet received.
         """
-        self.stream = tweepy.Stream(auth=api.auth, listener=self)
+        self.stream = tweepy.Stream(auth=api.auth, listener=self, tweet_mode='extended')
         self.follow_ids = follow_ids
         self.status_functions = funcs
         super().__init__()
@@ -59,11 +59,7 @@ class CustomStreamListener(tweepy.StreamListener):
         except KeyboardInterrupt:
             self.stream.disconnect()
             print("Keyboard interrupt, stopping stream")
-        except ReadTimeoutError:
-            self.stream.disconnect()
-            print("Timeout Error on stream, restarting stream")
-            self.run(run_async)
-        except WantReadError:
+        except OpenSSL.SSL.WantReadError:
             self.stream.disconnect()
             print("SSL WantReadError, restarting stream")
             self.run(run_async)
