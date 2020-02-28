@@ -10,6 +10,12 @@ LINK_EMBED = r"[\1](\1)"
 
 
 def twitter_to_telegram(status):
+    """
+    Convert a twitter status to a telegram message
+    
+    Parameters:
+        status: The twitter status
+    """
     text = status.text
 
     print(f"TWITTER: {text} -> ", end="")
