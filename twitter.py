@@ -1,4 +1,6 @@
 #! python3
+
+from OpenSSL.SSL import WantReadError
 import tweepy
 import auth
 
@@ -52,7 +54,23 @@ class CustomStreamListener(tweepy.StreamListener):
         Parameters:
             run_async: Run asynchronously (default: False)
         """
-        self.stream.filter(follow=self.follow_ids, is_async=run_async)
+        try:
+            self.stream.filter(follow=self.follow_ids, is_async=run_async)
+        except KeyboardInterrupt:
+            self.stream.disconnect()
+            print("Keyboard interrupt, stopping stream")
+        except ReadTimeoutError:
+            self.stream.disconnect()
+            print("Timeout Error on stream, restarting stream")
+            self.run(run_async)
+        except WantReadError:
+            self.stream.disconnect()
+            print("SSL WantReadError, restarting stream")
+            self.run(run_async)
+        except Exception:
+            self.stream.disconnect()
+            print("Unknown error")
+            self.run(run_async)
 
 
     def on_status(self, status):
@@ -65,3 +83,10 @@ class CustomStreamListener(tweepy.StreamListener):
             if status.in_reply_to_user_id_str is None or status.in_reply_to_user_id_str in self.follow_ids:
                 for func in self.status_functions:
                     func(status)
+
+    def on_error(self, status_code):
+        if status_code == 420:
+            # Disconnect stream
+            print("Rate limit exceeded, stopping stream")
+            return False
+        
