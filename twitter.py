@@ -3,8 +3,11 @@
 import OpenSSL
 import tweepy
 import auth
+import time
 
 api = tweepy.API(auth.twitter)
+
+MIN_DELAY = 0
 
 class CustomStreamListener(tweepy.StreamListener):
     """
@@ -30,6 +33,8 @@ class CustomStreamListener(tweepy.StreamListener):
         self.stream = tweepy.Stream(auth=api.auth, listener=self, tweet_mode='extended')
         self.follow_ids = follow_ids
         self.status_functions = funcs
+        self.delay_min = MIN_DELAY
+        self.delay = MIN_DELAY
         super().__init__()
 
 
@@ -54,18 +59,36 @@ class CustomStreamListener(tweepy.StreamListener):
         Parameters:
             run_async: Run asynchronously (default: False)
         """
+        
+        #print(f"Sleeping for {self.delay}s...")
+        #time.sleep(self.delay)
+        self.delay *= 2
+
+        start = time.time()
+
         try:
+            print("Connecting...")
             self.stream.filter(follow=self.follow_ids, is_async=run_async)
+            print("Connected!")
         except KeyboardInterrupt:
             self.stream.disconnect()
-            print("Keyboard interrupt, stopping stream")
+            print("\nKeyboard interrupt, stopping stream")
         except OpenSSL.SSL.WantReadError:
             self.stream.disconnect()
             print("SSL WantReadError, restarting stream")
+
+            lower_delay = time.time() - start
+            self.delay = max(MIN_DELAY, self.delay - lower_delay)
+
             self.run(run_async)
-        except Exception:
+        except Exception as e:
             self.stream.disconnect()
             print("Unknown error")
+            print(e)
+
+            lower_delay = time.time() - start
+            self.delay = max(MIN_DELAY, self.delay - lower_delay)
+
             self.run(run_async)
 
 

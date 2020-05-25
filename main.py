@@ -4,11 +4,14 @@ import twitter
 import converter
 import functools
 import telegram_echo
+import time
 
 CHANNEL = "-1001300279546"
 
-ID = "250178637"
+#ID = "250178637"   #MANNIE
+ID = "33473850"     #YNET
 
+RESTART_TIME = 30
 
 def get_bot_echo(bot, convert_func):
     def bot_echo(tweet):
@@ -21,9 +24,20 @@ def main():
     
     twitter_bot = twitter.CustomStreamListener([ID], [get_bot_echo(telegram_bot, converter.twitter_to_telegram)])
 
-    twitter_bot.run()
+    while True:
+        try:
+            twitter_bot.run()
+            
+        except Exception as e:
+            print("Unkown exception!")
+            print(e)
 
-    # [​​​](https://t.co/DCjoquxcUQ)
+        try:
+            print(f"Restarting bot in {RESTART_TIME}s... (Ctrl+C to exit)")
+            time.sleep(RESTART_TIME)
+        except KeyboardInterrupt:
+            print("\nKeyboard interrupt while waiting for restart. Exiting bot.")
+            exit()
 
 if __name__ == "__main__":
     main()
