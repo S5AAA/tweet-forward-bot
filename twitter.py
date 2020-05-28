@@ -14,7 +14,7 @@ def ids_from_names(*names):
     if len(names) > 1:
         ids = [user.id_str for user in api.lookup_users(screen_names=names)]
     else:
-        ids = [api.get_user(names[0]).id_str)]
+        ids = [api.get_user(names[0]).id_str]
 
     return ids
 
