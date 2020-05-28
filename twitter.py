@@ -9,6 +9,14 @@ api = tweepy.API(auth.twitter)
 
 MIN_DELAY = 0
 
+def ids_from_names(*names):
+    ids = []
+    for name in names:
+        ids.append(api.get_user(name))
+
+    return ids
+
+
 class CustomStreamListener(tweepy.StreamListener):
     """
     A class for abstract handling of a Twitter API stream, filtering by account ID.
