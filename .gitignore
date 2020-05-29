@@ -1,9 +1,6 @@
 # Log
 bot_log.txt
 
-# Authentication credentials
-auth.py
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

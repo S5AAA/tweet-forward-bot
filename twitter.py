@@ -1,20 +1,18 @@
 #! python3
 
+from auth import Auth
 import OpenSSL
 import tweepy
-import auth
 import time
-
-api = tweepy.API(auth.twitter)
 
 MIN_DELAY = 0
 
 def ids_from_names(*names):
     ids = []
     if len(names) > 1:
-        ids = [user.id_str for user in api.lookup_users(screen_names=names)]
+        ids = [user.id_str for user in Auth.twitter_api.lookup_users(screen_names=names)]
     else:
-        ids = [api.get_user(names[0]).id_str]
+        ids = [Auth.twitter_api.get_user(names[0]).id_str]
 
     return ids
 
@@ -40,7 +38,7 @@ class CustomStreamListener(tweepy.StreamListener):
             follow_ids: A list of IDS to filter by.
             funcs:      A list of functions to run on every tweet received.
         """
-        self.stream = tweepy.Stream(auth=api.auth, listener=self, tweet_mode='extended')
+        self.stream = tweepy.Stream(auth=Auth.twitter_api.auth, listener=self, tweet_mode='extended')
         self.follow_ids = follow_ids
         self.status_functions = funcs
         self.delay_min = MIN_DELAY

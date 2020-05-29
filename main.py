@@ -1,11 +1,13 @@
 #! python3
 
 from logger import Logger
+from auth import Auth
 import telegram_echo
 import converter
 import functools
 import argparse
 import twitter
+import tweepy
 
 RESTART_TIME = 30
 
@@ -20,12 +22,19 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     optional = parser._action_groups.pop()
-    repeatable = parser.add_argument_group('required arguments')
+    required = parser.add_argument_group('required arguments')
 
-    repeatable.add_argument('-i', metavar='twitter_name', help='Name of Twitter accounts to echo', nargs='+', required=True)
-    repeatable.add_argument('-o', metavar='telegram_channel', help='Telegram channel IDs to echo into', nargs='+', required=True)
+    required.add_argument('-i', metavar='twitter_name', help='Name of Twitter accounts to echo', nargs='+', required=True)
+    required.add_argument('-o', metavar='telegram_channel', help='Telegram channel IDs to echo into', nargs='+', required=True)
+
+    required.add_argument('--telegram-token', metavar='telegram_token', help='Telegram API token in the form of XXXXXXX:YYYYYYYYYYYY', required=True)
+
+    required.add_argument('--twitter-consumer', metavar=('consumer_key', 'consumer_secret'), help='Twitter consumer key and secret', nargs=2, required=True)
+
+    required.add_argument('--twitter-token', metavar=('access_token', 'token_secret'), help='Twitter access token and access token secret', nargs=2, required=True)
 
     optional.add_argument('-r', metavar='reset_time', help='Time the bot sleeps between rate limit errors or manual restarts', default=30, type=int)
+
 
     parser._action_groups.append(optional)
 
@@ -37,6 +46,24 @@ def main():
     twitter_names = args.i
     telegram_channels = args.o
     reset_time = args.r
+
+    twitter_consumer = args.twitter_consumer
+    twitter_access = args.twitter_token
+    telegram_token = args.telegram_token
+
+    print(f"""Initializing twitter API with credentials:
+{twitter_consumer}
+{twitter_access}""")
+
+    Auth.twitter = tweepy.OAuthHandler(*twitter_consumer)
+    Auth.twitter.set_access_token(*twitter_access)
+
+    Auth.twitter_api = tweepy.API(Auth.twitter)
+
+    print(f"""Initializing telegram API with credentials:
+{telegram_token}""")
+
+    Auth.telegram = telegram_token
 
     print(f"""Starting with:
 twitter_names = {twitter_names},

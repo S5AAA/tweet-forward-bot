@@ -1,7 +1,7 @@
 #! python3
 
+from auth import Auth
 import telegram
-import auth
 
 class TelegramEchoBot:
     """
@@ -24,7 +24,7 @@ class TelegramEchoBot:
         """
         self.echo_channels = channels
         
-        self.bot = telegram.Bot(token=auth.telegram)
+        self.bot = telegram.Bot(token=Auth.telegram)
 
     def echo_message(self, message, parse_mode=''):
         """
