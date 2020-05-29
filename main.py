@@ -8,6 +8,7 @@ import functools
 import argparse
 import twitter
 import tweepy
+import time
 
 RESTART_TIME = 30
 
@@ -35,6 +36,7 @@ def parse_args():
 
     optional.add_argument('-r', metavar='reset_time', help='Time the bot sleeps between rate limit errors or manual restarts', default=30, type=int)
 
+    optional.add_argument('-L', help='Do not echo stdout into log file', action='store_false')
 
     parser._action_groups.append(optional)
 
@@ -46,6 +48,7 @@ def main():
     twitter_names = args.i
     telegram_channels = args.o
     reset_time = args.r
+    echo_log = args.L
 
     twitter_consumer = args.twitter_consumer
     twitter_access = args.twitter_token
@@ -68,7 +71,8 @@ def main():
     print(f"""Starting with:
 twitter_names = {twitter_names},
 telegram_channels = {telegram_channels},
-reset_time = {reset_time}""")
+reset_time = {reset_time}
+echo_log = {echo_log}""")
 
     print(f"Getting ids for {twitter_names}")
     twitter_ids = twitter.ids_from_names(*twitter_names)
@@ -78,9 +82,11 @@ reset_time = {reset_time}""")
     
     twitter_bot = twitter.CustomStreamListener(twitter_ids, [get_bot_echo(telegram_bot, converter.twitter_to_telegram)])
     
-    print(f"Initializing logger...")
-    logger = Logger()
-    logger.init()
+    if echo_log:
+        print(f"Initializing logger...")
+
+        logger = Logger()
+        logger.init()
 
     while True:
         try:
@@ -97,8 +103,9 @@ reset_time = {reset_time}""")
             print("\nKeyboard interrupt while waiting for restart. Shutting down.")
             break
 
-    print("Shutting down logger...")
-    logger.finit()
+    if echo_log:
+        print("Shutting down logger...")
+        logger.finit()
 
     print("Exiting")
 
