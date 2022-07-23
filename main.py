@@ -14,7 +14,7 @@ RESTART_TIME = 30
 
 def get_bot_echo(bot, convert_func):
     def bot_echo(tweet):
-        bot.echo_message(convert_func(tweet), "Markdown")
+        bot.echo_message(convert_func(tweet), "Markdownv2")
 
     return bot_echo
 
@@ -58,6 +58,12 @@ def main():
 {twitter_consumer}
 {twitter_access}""")
 
+    Auth.twitter_raw = {
+        "consumer_key" : twitter_consumer[0],
+        "consumer_secret" : twitter_consumer[1],
+        "access_token" : twitter_access[0],
+        "access_token_secret" : twitter_access[1],
+    }
     Auth.twitter = tweepy.OAuthHandler(*twitter_consumer)
     Auth.twitter.set_access_token(*twitter_access)
 
@@ -80,7 +86,7 @@ echo_log = {echo_log}""")
 
     telegram_bot = telegram_echo.TelegramEchoBot(telegram_channels)
     
-    twitter_bot = twitter.CustomStreamListener(twitter_ids, [get_bot_echo(telegram_bot, converter.twitter_to_telegram)])
+    twitter_bot = twitter.NewStreamListener(twitter_ids, [get_bot_echo(telegram_bot, converter.twitter_to_telegram)])
     
     if echo_log:
         print(f"Initializing logger...")

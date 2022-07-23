@@ -16,7 +16,9 @@ class Logger():
         self.log.flush()
 
     def init(self):
+        self.old_stdout = sys.stdout
         sys.stdout = self
 
     def finit(self):
         self.log.close()
+        sys.stdout = self.old_stdout
